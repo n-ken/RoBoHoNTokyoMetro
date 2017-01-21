@@ -6,8 +6,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.customize.ScenarioDefinitions;
 import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIManagerUtil;
+import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIVariableUtil;
 import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIVariableUtil.VoiceUIVariableListHelper;
 
 import jp.co.sharp.android.rb.projectormanager.ProjectorManagerServiceUtil;
@@ -59,6 +62,9 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
      */
     private boolean isProjected = false;
 
+    // メンバ変数の定義
+    SharedPreferences mSharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,21 +83,6 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
         mVoiceUIStartReceiver = new VoiceUIStartReceiver();
         IntentFilter filter = new IntentFilter(VoiceUIManager.ACTION_VOICEUI_SERVICE_STARTED);
         registerReceiver(mVoiceUIStartReceiver, filter);
-
-        //TODO プロジェクタイベントの検知登録(プロジェクター利用時のみ).
-        //setProjectorEventReceiver();
-
-        //発話ボタンの実装.
-        Button Button = (Button) findViewById(R.id.accost);
-        Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mVoiceUIManager != null) {
-                    VoiceUIVariableListHelper helper = new VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_HELLO);
-                    VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
-                }
-            }
-        });
 
     }
 
@@ -114,6 +105,18 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
         //Scene有効化.
         VoiceUIManagerUtil.enableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_COMMON);
         VoiceUIManagerUtil.enableScene(mVoiceUIManager, ScenarioDefinitions.SCENE01);
+
+        //初回起動時は初回起動用シナリオを起動する
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if(!mSharedPreferences.getBoolean("hasStarted", false)) {
+            // SharedPreferencesに起動済みと設定
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putBoolean("hasStarted", true);
+            editor.commit();
+            // シナリオの起動
+            VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_TUTORIAL);
+            VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
+        }
     }
 
     @Override
@@ -142,9 +145,6 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
 
         //VoiceUI再起動の検知破棄.
         this.unregisterReceiver(mVoiceUIStartReceiver);
-
-        //TODO プロジェクタイベントの検知破棄(プロジェクター利用時のみ).
-        //this.unregisterReceiver(mProjectorEventReceiver);
 
         //インスタンスのごみ掃除.
         mVoiceUIManager = null;

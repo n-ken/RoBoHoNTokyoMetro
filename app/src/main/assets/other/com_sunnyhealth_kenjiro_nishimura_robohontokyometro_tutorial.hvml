@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<hvml version="2.0">
+    <head>
+        <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
+        <!-- TODO このシナリオの説明文を入力してください(プログラムに影響はありません) -->
+        <description>アプリの使い方説明</description>
+        <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_common" />
+        <version value="1.0" />
+        <accost priority="75" topic_id="say"
+            word="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.tutorial" />
+    </head>
+    <body>
+        <topic id="say" listen="false">
+            <action index="1">
+                <speech>まずは、このアプリの使い方を説明するね。</speech>
+                <behavior id="assign" type="normal" />
+            </action>
+            <action index="2">
+                <speech>アプリを立ち上げた後に、ぼくに「運行情報を教えて」って話しかけると、
+                    現在の東京メトロの運行情報について、お話するよ。
+                </speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <action index="3">
+                <speech>「運賃を教えて」って話しかけると、
+                    運賃検索を開始するよ。ぼくが出発駅と到着駅を聞くから、質問に答えてね。
+                </speech>
+            </action>
+        </topic>
+    </body>
+</hvml>

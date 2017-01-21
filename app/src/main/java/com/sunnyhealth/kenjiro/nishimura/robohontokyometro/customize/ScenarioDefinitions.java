@@ -54,14 +54,12 @@ public class ScenarioDefinitions {
      * scene名: 特定シーン
      */
     public static final String SCENE01 = PACKAGE + ".scene01";
-    /**
-     * accost名：こんにちは発話実行.
-     */
+    // accost名：こんにちは発話実行.
     public static final String ACC_HELLO = ScenarioDefinitions.PACKAGE + ".hello.say";
-    /**
-     * accost名：アプリ終了発話実行.
-     */
+    // accost名：アプリ終了発話実行.
     public static final String ACC_END_APP = ScenarioDefinitions.PACKAGE + ".app_end.execute";
+    // accost名: アプリ初回起動発話実行.
+    public static final String ACC_TUTORIAL = ScenarioDefinitions.PACKAGE + ".tutorial";
     /**
      * static クラスとして使用する.
      */
