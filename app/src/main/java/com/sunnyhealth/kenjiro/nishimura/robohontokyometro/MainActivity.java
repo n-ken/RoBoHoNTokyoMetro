@@ -117,6 +117,10 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
             VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_TUTORIAL);
             VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
         }
+
+        // 機能選択シナリオを軌道する
+        VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_SELECT_FEATURE);
+        VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
     }
 
     @Override
@@ -158,15 +162,29 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
     @Override
     public void onExecCommand(String command, List<VoiceUIVariable> variables) {
         Log.v(TAG, "onExecCommand() : " + command);
+
+        VoiceUIVariableUtil.VoiceUIVariableListHelper helper;
+        Intent intent;
+
         switch (command) {
             case ScenarioDefinitions.FUNC_END_APP:
                 finish();
                 break;
-            case ScenarioDefinitions.FUNC_START_PROJECTOR:
-                //TODO プロジェクタマネージャの開始(プロジェクター利用時のみ).
-                //if(!isProjected) {
-                //    startService(getIntentForProjector());
-                //}
+            case ScenarioDefinitions.FUNC_SELECT_FEATURE:
+                // 機能選択シナリオを軌道する
+                helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_SELECT_FEATURE);
+                VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
+                break;
+            case ScenarioDefinitions.FUNC_START_INFORMATION:
+                // 運行情報確認画面に遷移する
+                Log.d("ANDROID", "Now, Start ActivityTransition.");
+                intent = new Intent(MainActivity.this, ShowTrainInformationActivity.class);
+                startActivity(intent);
+                break;
+            case ScenarioDefinitions.FUNC_START_FARE:
+                // 運賃確認画面に遷移する
+                intent = new Intent(MainActivity.this, ShowRailwayFareActivity.class);
+                startActivity(intent);
                 break;
             default:
                 break;

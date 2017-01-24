@@ -7,4 +7,8 @@
     <dimen name="toolbar_item_button_width">63dp</dimen>
     <dimen name="toolbar_item_button_padding">14dp</dimen>
     <dimen name="toolbar_item_button_margin_start">9dp</dimen>
+    <dimen name="text_size_micro">9sp</dimen>
+    <dimen name="text_size_small">18sp</dimen>
+    <dimen name="text_size_medium">27sp</dimen>
+    <dimen name="text_size_large">36sp</dimen>
 </resources>

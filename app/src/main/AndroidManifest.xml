@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <android:uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <android:uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,14 +30,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="jp.co.sharp.android.rb.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                 android:name="use_projector"
                 android:value="MainActivity" />
         </activity>
+
         <service
             android:name=".common.RegisterScenarioService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
+
         <receiver android:name=".common.RequestScenarioReceiver">
             <intent-filter>
                 <action android:name="jp.co.sharp.android.voiceui.REQUEST_SCENARIO" />
@@ -49,6 +56,9 @@
         <uses-library
             android:name="jp.co.sharp.android.rb.addressbook.framework"
             android:required="true" />
+
+        <activity android:name=".ShowTrainInformationActivity" />
+        <activity android:name=".ShowRailwayFareActivity"></activity>
     </application>
 
 </manifest>

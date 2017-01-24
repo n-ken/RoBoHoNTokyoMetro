@@ -1,0 +1,120 @@
+<?xml version="1.0" ?>
+<hvml version="2.0">
+    <head>
+        <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
+        <description>アプリの使い方説明</description>
+        <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_common" />
+        <version value="1.2" />
+        <accost priority="75" topic_id="init"
+            word="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.select.feature" />
+    </head>
+    <body>
+        <topic id="init" listen="false">
+            <action index="1">
+                <memory key="loop_count" type="temporary" value="0"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+        <topic id="switch" listen="false">
+            <rule>
+                <condition case_id="c1">${memory_t:loop_count} eq 0</condition>
+                <condition case_id="c2">${memory_t:loop_count} eq 1</condition>
+                <condition case_id="c3">${memory_t:loop_count} eq 2</condition>
+                <condition case_id="c4">${memory_t:loop_count} eq 3</condition>
+            </rule>
+            <case id="c1">
+                <action index="1">
+                    <speech>まずは、どんなことをしたいか教えてね。運賃を確認する場合は、「運賃」って言ってね。
+                            運行情報を確認する場合は、運行情報って言ってね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listening" type="default"/>
+            </case>
+            <case id="c2">
+                <action index="1">
+                    <speech>運賃、か、運行情報、って言ってね。アプリを終了する場合は、「アプリを終わり」って言ってね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listening" type="default"/>
+            </case>
+            <case id="c3">
+                <action index="1">
+                    <speech>運賃、か、運行情報、って言ってね。アプリを終了する場合は、「アプリを終わり」って言ってね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listening" type="default"/>
+            </case>
+            <case id="c4">
+                <action index="1">
+                    <speech>実行するのやめとくね。</speech>
+                    <behavior id="assign" type="normal"/>
+                    <control function="app_end" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    </control>
+                </action>
+            </case>
+        </topic>
+        <topic dict="Reply" id="listening" listen="true">
+            <a href="#fare">
+                <situation trigger="user-word">${Lvcsr:Basic} include [運賃,うんちん]</situation>
+            </a>
+            <a href="#information">
+                <situation trigger="user-word">${Lvcsr:Basic} include [運行情報,うんこうじょうほう]</situation>
+            </a>
+            <a href="#error">
+                <situation trigger="user-word">ＶＯＩＣＥＰＦ＿ＥＲＲ in ${Lvcsr:Basic}</situation>
+            </a>
+            <a href="#other" type="default"/>
+            <next href="#other" type="default"/>
+        </topic>
+        <topic id="information" listen="false">
+            <action index="1">
+                <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
+            </action>
+            <action index="2">
+                <speech>運行情報を確認するね。</speech>
+                <behavior id="assign" type="normal"/>
+                <control function="func_start_information" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="Lvcsr_Basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+        </topic>
+        <topic id="fare" listen="false">
+            <action index="1">
+                <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
+            </action>
+            <action index="2">
+                <speech>運賃を確認するね。</speech>
+                <behavior id="assign" type="normal"/>
+                <control function="func_start_fare" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="Lvcsr_Basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+        </topic>
+        <topic id="error" listen="false">
+            <action index="1">
+                <speech> ごめんね、うまく聞き取れなかったよ。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <action index="2">
+                <speech>もう一度教えてね。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#increament" type="default"/>
+        </topic>
+        <topic id="other" listen="false">
+            <action index="1">
+                <speech>ごめんね、よくわからなかったよ。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#increament" type="default"/>
+        </topic>
+        <topic id="increament" listen="false">
+            <action index="1">
+                <memory key="loop_count" type="temporary" value="(${memory_t:loop_count} + 1)"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+    </body>
+</hvml>
