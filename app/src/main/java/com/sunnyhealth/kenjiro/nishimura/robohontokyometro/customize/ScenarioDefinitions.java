@@ -10,9 +10,7 @@ package com.sunnyhealth.kenjiro.nishimura.robohontokyometro.customize;
  */
 public class ScenarioDefinitions {
 
-    /**
-     * sceneタグを指定する文字列
-     */
+     // sceneタグを指定する文字列
     public static final String TAG_SCENE = "scene";
     /**
      * accostタグを指定する文字列
@@ -46,14 +44,16 @@ public class ScenarioDefinitions {
      * シナリオ共通: controlタグで指定するターゲット名.
      */
     public static final String TARGET = PACKAGE;
-    /**
-     * scene名: アプリ共通シーン
-     */
+     // scene名: アプリ共通シーン
     public static final String SCENE_COMMON = PACKAGE + ".scene_common";
     /**
      * scene名: 特定シーン
      */
     public static final String SCENE01 = PACKAGE + ".scene01";
+    // scene名: 運行情報
+    public static final String SCENE_INFORMATION = PACKAGE + ".scene_information";
+    // scene名: 運賃検索
+    public static final String SCENE_FARE = PACKAGE + ".scene_fare";
     // accost名：こんにちは発話実行.
     public static final String ACC_HELLO = ScenarioDefinitions.PACKAGE + ".hello.say";
     // accost名：アプリ終了発話実行.
