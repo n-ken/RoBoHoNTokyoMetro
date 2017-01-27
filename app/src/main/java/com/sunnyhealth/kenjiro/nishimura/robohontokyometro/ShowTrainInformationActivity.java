@@ -13,14 +13,19 @@ import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.customize.ScenarioDef
 import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIManagerUtil;
 import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIVariableUtil;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jp.co.sharp.android.voiceui.VoiceUIManager;
 import jp.co.sharp.android.voiceui.VoiceUIVariable;
 
 import static com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIManagerUtil.TAG;
 
-public class ShowTrainInformationActivity extends Activity {
+public class ShowTrainInformationActivity extends Activity implements MainActivityVoiceUIListener.MainActivityScenarioCallback {
 
     public static final String TAG = ShowTrainInformationActivity.class.getSimpleName();
     // 音声UIイベントリスナー.
@@ -30,6 +35,19 @@ public class ShowTrainInformationActivity extends Activity {
     // ホームボタンイベント検知.
     private HomeEventReceiver mHomeEventReceiver;
     VoiceUIManager mVoiceUIManager = null;
+    // プロパティと名称の対応付け
+    Map<String, String> railwayMap = new HashMap<String, String>(){
+        {put("odpt.Railway:TokyoMetro.Chiyoda", "千代田線");}
+        {put("odpt.Railway:TokyoMetro.Hibiya", "日比谷線");}
+        {put("odpt.Railway:TokyoMetro.Tozai", "東西線");}
+        {put("odpt.Railway:TokyoMetro.Hanzomon", "半蔵門線");}
+        {put("odpt.Railway:TokyoMetro.Fukutoshin", "副都心線");}
+        {put("odpt.Railway:TokyoMetro.Marunouchi", "丸ノ内線");}
+        {put("odpt.Railway:TokyoMetro.Yurakucho", "有楽町線");}
+        {put("odpt.Railway:TokyoMetro.Namboku", "南北線");}
+        {put("odpt.Railway:TokyoMetro.Ginza", "銀座線");}
+    };
+    String msg = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +57,7 @@ public class ShowTrainInformationActivity extends Activity {
 
         // タイトルの設定
         setupTitleBar();
+
     }
 
     public void onResume() {
@@ -70,14 +89,58 @@ public class ShowTrainInformationActivity extends Activity {
         // シーンの有効化
         VoiceUIManagerUtil.enableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_COMMON);
         VoiceUIManagerUtil.enableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_INFORMATION);
+
+        // データの取得
+        AsyncTokyoMetro mAsyncTokyoMetro = new AsyncTokyoMetro(this, mVoiceUIManager);
+        mAsyncTokyoMetro.setOnCallBack(new AsyncTokyoMetro.CallBackTask() {
+            @Override
+            public void CallBack(Map<String, String> data) {
+                super.CallBack(data);
+                // トラブルの有無に応じてメッセージを生成
+                if (data.get("trouble").equals("true")) {
+                    msg = "現在、一部の路線でトラブルが発生しているよ。東京メトロからのアナウンスを読み上げるね。";
+                    for (Map.Entry<String, String> e: data.entrySet()) {
+                        if (e.getKey().equals("trouble")) continue;
+                        msg += railwayMap.get(e.getKey()) + "は、" + e.getValue();
+                    }
+                } else {
+                    msg = "現在、東京メトロの全路線は平常通りに運行しているよ。";
+                }
+
+                int ret = VoiceUIVariableUtil.setVariableData(mVoiceUIManager,
+                ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE + ".message_traininformation",
+                msg);
+
+                // シナリオの起動
+                VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_TRAININFORMATION);
+                VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
+            }
+        });
+        mAsyncTokyoMetro.execute("trainInformation");
     }
 
     @Override
     public void onExecCommand(String command, List<VoiceUIVariable> variables) {
         Log.v(TAG, "onExecCommand() : " + command);
+
+        VoiceUIVariableUtil.VoiceUIVariableListHelper helper;
+        Intent intent;
+
         switch (command) {
             case ScenarioDefinitions.FUNC_END_APP:
                 finish();
+                break;
+            case ScenarioDefinitions.FUNC_START_FARE:
+                // 運賃検索画面に遷移する
+                Log.d("ANDROID", "Now, Start ActivityTransition.");
+                intent = new Intent(ShowTrainInformationActivity.this, ShowRailwayFareActivity.class);
+                startActivity(intent);
+                break;
+            case ScenarioDefinitions.FUNC_START_INFORMATION:
+                // 運行情報確認画面に遷移する
+                Log.d("ANDROID", "Now, Start ActivityTransition.");
+                intent = new Intent(ShowTrainInformationActivity.this, ShowTrainInformationActivity.class);
+                startActivity(intent);
                 break;
             default:
                 break;
@@ -98,6 +161,9 @@ public class ShowTrainInformationActivity extends Activity {
         //Scene無効化.
         VoiceUIManagerUtil.disableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_COMMON);
         VoiceUIManagerUtil.disableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_INFORMATION);
+
+        // アクティビティを終了
+        finish();
     }
 
     @Override

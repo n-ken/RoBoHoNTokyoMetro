@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<hvml version="2.0">
+    <head>
+        <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
+        <description>運行情報確認結果を発話</description>
+        <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_information" />
+        <version value="1.1" />
+        <accost priority="74" topic_id="execute"
+            word="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.train_information" />
+    </head>
+    <body>
+        <topic id="execute" listen="false">
+            <action index="1">
+                <speech>${memory_p:com.sunnyhealth.kenjiro.nishimura.robohontokyometro.message_traininformation}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal" />
+            </action>
+        </topic>
+    </body>
+</hvml>

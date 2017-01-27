@@ -39,7 +39,7 @@ public class ScenarioDefinitions {
     /**
      * Package名.
      */
-    protected static final String PACKAGE = "com.sunnyhealth.kenjiro.nishimura.robohontokyometro";
+    public static final String PACKAGE = "com.sunnyhealth.kenjiro.nishimura.robohontokyometro";
     /**
      * シナリオ共通: controlタグで指定するターゲット名.
      */
@@ -62,6 +62,10 @@ public class ScenarioDefinitions {
     public static final String ACC_TUTORIAL = ScenarioDefinitions.PACKAGE + ".tutorial";
     // accost名: 機能選択発話実行.
     public static final String ACC_SELECT_FEATURE = ScenarioDefinitions.PACKAGE + ".select.feature";
+    // accost名: 運行情報確認結果発話実行.
+    public static final String ACC_TRAININFORMATION = ScenarioDefinitions.PACKAGE + ".train_information";
+    // accost名: 運賃検索結果発話実行.
+    public static final String ACC_RAILWAYFARE = ScenarioDefinitions.PACKAGE + ".railway_fare";
     /**
      * static クラスとして使用する.
      */

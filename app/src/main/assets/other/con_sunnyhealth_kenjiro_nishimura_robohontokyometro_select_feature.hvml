@@ -4,7 +4,7 @@
         <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
         <description>アプリの使い方説明</description>
         <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_common" />
-        <version value="1.2" />
+        <version value="1.3" />
         <accost priority="75" topic_id="init"
             word="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.select.feature" />
     </head>
@@ -24,15 +24,15 @@
             </rule>
             <case id="c1">
                 <action index="1">
-                    <speech>まずは、どんなことをしたいか教えてね。運賃を確認する場合は、「運賃」って言ってね。
-                            運行情報を確認する場合は、運行情報って言ってね。</speech>
+                    <speech>運賃と運行情報のどっちを調べる？</speech>
                     <behavior id="assign" type="normal"/>
                 </action>
                 <next href="#listening" type="default"/>
             </case>
             <case id="c2">
                 <action index="1">
-                    <speech>運賃、か、運行情報、って言ってね。アプリを終了する場合は、「アプリを終わり」って言ってね。</speech>
+                    <speech>まずは、どんなことをしたいか教えてね。運賃を確認する場合は、「運賃」って言ってね。
+                            運行情報を確認する場合は、運行情報って言ってね。</speech>
                     <behavior id="assign" type="normal"/>
                 </action>
                 <next href="#listening" type="default"/>
