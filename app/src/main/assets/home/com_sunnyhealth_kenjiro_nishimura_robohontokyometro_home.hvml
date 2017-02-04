@@ -4,11 +4,11 @@
         <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
         <description>東京メトロAPIアプリ ホーム画面</description>
         <scene value="home" />
-        <version value="1.2" />
-        <situation priority="78" topic_id="start" trigger="user-word">${Local:WORD_APPLICATION} eq とうきょうめとろ
+        <version value="1.4" />
+        <situation priority="78" topic_id="start" trigger="user-word">${Local:WORD_APPLICATION} eq でんしゃ
         </situation>
         <situation priority="78" topic_id="start" trigger="user-word">
-            ${Local:WORD_APPLICATION_FREEWORD} eq とうきょうめとろについて教えて
+            ${Local:WORD_APPLICATION_FREEWORD} eq とうきょうめとろについておしえて
         </situation>
     </head>
     <body>

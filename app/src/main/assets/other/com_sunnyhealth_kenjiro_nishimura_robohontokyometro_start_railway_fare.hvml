@@ -6,7 +6,7 @@
         <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_common" />
         <version value="1.0" />
         <situation priority="61" topic_id="accept" trigger="user-word">運賃 in ${Lvcsr:Basic} and
-            ${Lvcsr:Basic} include [教え,調べ,調べ,知り,して]
+            ${Lvcsr:Basic} include [教え,調べ,調べ,知り,して,検索]
         </situation>
     </head>
     <body>
