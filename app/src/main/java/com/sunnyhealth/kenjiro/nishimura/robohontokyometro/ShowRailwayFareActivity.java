@@ -16,6 +16,8 @@ import com.sunnyhealth.kenjiro.nishimura.robohontokyometro.util.VoiceUIVariableU
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jp.co.sharp.android.voiceui.VoiceUIManager;
 import jp.co.sharp.android.voiceui.VoiceUIVariable;
@@ -38,6 +40,7 @@ public class ShowRailwayFareActivity extends Activity implements MainActivityVoi
     String mFromStationProperty;
     String mToRailwayProperty;
     String mToStationProperty;
+    String mUrl;
     // 路線名をプロパティに変換するMap
     Map<String, String> railwayMap = new HashMap<String, String>() {
         {put("千代田線", "Chiyoda");}
@@ -238,45 +241,9 @@ public class ShowRailwayFareActivity extends Activity implements MainActivityVoi
         VoiceUIManagerUtil.enableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_COMMON);
         VoiceUIManagerUtil.enableScene(mVoiceUIManager, ScenarioDefinitions.SCENE_FARE);
 
-        // 検索条件ヒアリングシナリオの起動
-        mFromRailway = "有楽町線";
-        mFromStation = "新富町";
-        mToRailway = "日比谷線";
-        mToStation = "上野";
-        mFromRailwayProperty = railwayMap.get(mFromRailway);
-        mToRailwayProperty = railwayMap.get(mToRailway);
-        mFromStationProperty = stationMap.get(mFromStation);
-        mToStationProperty = stationMap.get(mToStation);
-        String mUrl = "&odpt:toStation=odpt.Station:TokyoMetro." + mToRailwayProperty + "." + mToStationProperty
-                + "&odpt:fromStation=odpt.Station:TokyoMetro." + mFromRailwayProperty + "." + mFromStationProperty;
-
-        // データの取得(実際にはシナリオ起動後のコントロール下で動作することとなる)
-        AsyncTokyoMetro mAsyncTokyoMetro = new AsyncTokyoMetro(this, mVoiceUIManager);
-        mAsyncTokyoMetro.setOnCallBack(new AsyncTokyoMetro.CallBackTask() {
-            @Override
-            public void CallBack(Map<String, String> data) {
-                super.CallBack(data);
-                // データ取得確認
-                String msg;
-                msg = mFromStation + "(" + data.get("fromStation") + ")から" +
-                        mToStation + "(" + data.get("toStation") + ")までの運賃は、"
-                        + data.get("ticketFare") + "円だよ。子供だと" + data.get("childTicketFare")
-                        + "円だよ。ICカードを使うと" + data.get("icCardFare") + "円、子供だと"
-                        + data.get("childIcCardFare") + "円になるよ。";
-                Log.d("ANDROID", msg);
-
-                // 一時的にmsgを変更
-                msg = "ごめんね、運賃検索機能は今工事中だよ。";
-                int ret = VoiceUIVariableUtil.setVariableData(mVoiceUIManager,
-                        ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE + ".message_railwayfare",
-                        msg);
-
-                // シナリオの起動
-                VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_RAILWAYFARE);
-                VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
-            }
-        });
-        mAsyncTokyoMetro.execute("railwayFare", mUrl);
+        // ヒアリングシナリオの起動
+        VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_RAILWAYFARE);
+        VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
     }
 
     @Override
@@ -285,19 +252,72 @@ public class ShowRailwayFareActivity extends Activity implements MainActivityVoi
 
         VoiceUIVariableUtil.VoiceUIVariableListHelper helper;
         Intent intent;
+
         switch (command) {
+            case ScenarioDefinitions.FUNC_SEARCH_FARE:
+                // 路線名、駅名を含んだ発話を取得
+                String lvcsr_fromrailway = VoiceUIVariableUtil.getVariableData(variables,
+                        ScenarioDefinitions.KEY_FROM_RAILWAY);
+                String lvcsr_fromstation = VoiceUIVariableUtil.getVariableData(variables,
+                        ScenarioDefinitions.KEY_FROM_STATION);
+                String lvcsr_torailway = VoiceUIVariableUtil.getVariableData(variables,
+                        ScenarioDefinitions.KEY_TO_RAILWAY);
+                String lvcsr_tostation = VoiceUIVariableUtil.getVariableData(variables,
+                    ScenarioDefinitions.KEY_TO_STATION);
+                // 正規表現で路線名、駅名を取得
+                mFromRailway = getRailwayName(lvcsr_fromrailway) + "線";
+                mFromStation = getStationName(lvcsr_fromstation);
+                mToRailway = getRailwayName(lvcsr_torailway) + "線";
+                mToStation = getStationName(lvcsr_tostation);
+                // URLを生成
+                mFromRailwayProperty = railwayMap.get(mFromRailway);
+                mToRailwayProperty = railwayMap.get(mToRailway);
+                mFromStationProperty = stationMap.get(mFromStation);
+                mToStationProperty = stationMap.get(mToStation);
+                mUrl = "&odpt%3AtoStation=odpt.Station%3ATokyoMetro." + mToRailwayProperty + "." + mToStationProperty
+                        + "&odpt%3AfromStation=odpt.Station%3ATokyoMetro." + mFromRailwayProperty + "." + mFromStationProperty;
+                // データの取得
+                AsyncTokyoMetro mAsyncTokyoMetro = new AsyncTokyoMetro(this, mVoiceUIManager);
+                mAsyncTokyoMetro.setOnCallBack(new AsyncTokyoMetro.CallBackTask() {
+                    @Override
+                    public void CallBack(Map<String, String> data) {
+                        super.CallBack(data);
+                        // データ取得確認
+                        String msg;
+                        msg = mFromStation + "から" +
+                                mToStation + "までの運賃は、"
+                                + data.get("ticketFare") + "円だよ。子供だと" + data.get("childTicketFare")
+                                + "円だよ。ICカードを使うと" + data.get("icCardFare") + "円、子供だと"
+                                + data.get("childIcCardFare") + "円になるよ。";
+                        Log.d("ANDROID", msg);
+
+                        // 生成メッセージをメモリーに保持
+                        int ret = VoiceUIVariableUtil.setVariableData(mVoiceUIManager,
+                                ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE + ".message_railwayfare",
+                                msg);
+
+                        // シナリオの起動
+                        VoiceUIVariableUtil.VoiceUIVariableListHelper helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_SPEAK_RAILWAYFARE);
+                        VoiceUIManagerUtil.updateAppInfo(mVoiceUIManager, helper.getVariableList(), true);
+                    }
+                });
+                mAsyncTokyoMetro.execute("railwayFare", mUrl);
+                break;
             case ScenarioDefinitions.FUNC_END_APP:
                 finish();
                 break;
+            case ScenarioDefinitions.FUNC_RECOG_TALK:
+                String lvcsr_basic = VoiceUIVariableUtil.getVariableData(variables,
+                        ScenarioDefinitions.KEY_LVCSR_BASIC);
+                Log.d("RecognizedTalk: ", lvcsr_basic);
+                break;
             case ScenarioDefinitions.FUNC_START_FARE:
                 // 運賃検索画面に遷移する
-                Log.d("ANDROID", "Now, Start ActivityTransition.");
                 intent = new Intent(ShowRailwayFareActivity.this, ShowRailwayFareActivity.class);
                 startActivity(intent);
                 break;
             case ScenarioDefinitions.FUNC_START_INFORMATION:
                 // 運行情報確認画面に遷移する
-                Log.d("ANDROID", "Now, Start ActivityTransition.");
                 intent = new Intent(ShowRailwayFareActivity.this, ShowTrainInformationActivity.class);
                 startActivity(intent);
                 break;
@@ -344,6 +364,39 @@ public class ShowRailwayFareActivity extends Activity implements MainActivityVoi
         mMainActivityVoiceUIListener = null;
     }
 
+    // 路線名の抽出
+    private String getRailwayName(String string) {
+        String matchStr = string;
+        String patternStr = "((銀座)|(丸ノ内)|(丸の内)|(丸之内)|(日比谷)|(有楽町)|(半蔵門)|(千代田)|(東西)|(南北)|(副都心))";
+        String result;
+
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(matchStr);
+        if (matcher.find()) {
+            result = matcher.group(1);
+        } else {
+            result = null;
+        }
+        return result;
+    }
+
+    // 駅名の抽出
+    private String getStationName(String string) {
+        String matchStr = string;
+        String patternStr = "((南阿佐ケ谷)|(門前仲町)|(豊洲)|(永田町)|(押上)|(築地)|(表参道)|(清澄白河)|(北千住)|(目黒)|(駒込)|(銀座一丁目)|(麻布十番)|(千駄木)|(東大前)|(新富町)|(方南町)|(中目黒)|(辰巳)|(王子神谷)|(代々木上原)|(氷川台)|(人形町)|(王子)|(西日暮里)|(半蔵門)|(浅草)|(三越前)|(本郷三丁目)|(麴町)|(水天宮前)|(稲荷町)|(茅場町)|(虎ノ門)|(西葛西)|(東池袋)|(葛西)|(有楽町)|(日本橋)|(神谷町)|(神楽坂)|(白金高輪)|(根津)|(行徳)|(東高円寺)|(上野)|(西ケ原)|(中野富士見町)|(国会議事堂前)|(北参道)|(志茂)|(新宿)|(町屋)|(護国寺)|(南砂町)|(新中野)|(雑司が谷)|(本駒込)|(西船橋)|(渋谷)|(赤坂見附)|(代々木公園)|(新高円寺)|(新木場)|(大手町)|(浦安)|(錦糸町)|(早稲田)|(末広町)|(恵比寿)|(南行徳)|(新宿御苑前)|(秋葉原)|(広尾)|(妙典)|(荻窪)|(高田馬場)|(月島)|(赤羽岩淵)|(四ツ谷)|(日比谷)|(中野新橋)|(小伝馬町)|(市ケ谷)|(平和台)|(南千住)|(中野)|(外苑前)|(地下鉄赤塚)|(入谷)|(東新宿)|(北綾瀬)|(西新宿)|(三ノ輪)|(後楽園)|(六本木一丁目)|(新大塚)|(江戸川橋)|(九段下)|(明治神宮前)|(乃木坂)|(霞ケ関)|(東京)|(溜池山王)|(御茶ノ水)|(新宿三丁目)|(八丁堀)|(西早稲田)|(茗荷谷)|(綾瀬)|(東陽町)|(神保町)|(赤坂)|(京橋)|(神田)|(白金台)|(飯田橋)|(田原町)|(六本木)|(上野広小路)|(木場)|(新橋)|(和光市)|(千川)|(桜田門)|(青山一丁目)|(地下鉄成増)|(東銀座)|(住吉)|(湯島)|(四谷三丁目)|(中野坂上)|(淡路町)|(銀座)|(竹橋)|(新御茶ノ水)|(原木中山)|(小竹向原)|(仲御徒町)|(要町)|(池袋)|(落合)|(二重橋前))";
+        String result;
+
+        Pattern pattern = Pattern.compile(patternStr);
+        Matcher matcher = pattern.matcher(matchStr);
+        if (matcher.find()) {
+            result = matcher.group(1);
+        } else {
+            result = null;
+        }
+        return result;
+    }
+
+    // タイトルの設定
     private void setupTitleBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setActionBar(toolbar);

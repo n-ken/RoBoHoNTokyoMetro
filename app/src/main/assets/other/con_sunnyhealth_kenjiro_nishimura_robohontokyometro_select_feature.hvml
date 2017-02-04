@@ -4,7 +4,7 @@
         <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
         <description>アプリの使い方説明</description>
         <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_common" />
-        <version value="1.3" />
+        <version value="1.4" />
         <accost priority="75" topic_id="init"
             word="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.select.feature" />
     </head>
@@ -68,6 +68,11 @@
         </topic>
         <topic id="information" listen="false">
             <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
                 <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
                 <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
             </action>
@@ -81,6 +86,11 @@
         </topic>
         <topic id="fare" listen="false">
             <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
                 <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
                 <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
             </action>
@@ -94,6 +104,11 @@
         </topic>
         <topic id="error" listen="false">
             <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
                 <speech> ごめんね、うまく聞き取れなかったよ。</speech>
                 <behavior id="assign" type="normal"/>
             </action>
@@ -105,6 +120,11 @@
         </topic>
         <topic id="other" listen="false">
             <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
                 <speech>ごめんね、よくわからなかったよ。</speech>
                 <behavior id="assign" type="normal"/>
             </action>

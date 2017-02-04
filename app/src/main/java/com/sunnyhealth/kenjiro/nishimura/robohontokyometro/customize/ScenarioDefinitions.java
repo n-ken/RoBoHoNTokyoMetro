@@ -24,18 +24,20 @@ public class ScenarioDefinitions {
      * function属性を指定する文字列
      */
     public static final String ATTR_FUNCTION = "function";
-    /**
-     * memory_pを指定するタグ
-     */
+    // memory_pを指定するタグ
     public static final String TAG_MEMORY_PERMANENT = "memory_p:";
     // function：アプリ終了を通知する.
     public static final String FUNC_END_APP = "end_app";
+    // function: 音声認識結果を出力する.
+    public static final String FUNC_RECOG_TALK = "func_recog_talk";
     // function: 機能選択シナリオを起動する.
     public static final String FUNC_SELECT_FEATURE = "func_select_feature";
     // function: 運行情報アプリを起動する.
     public static final String FUNC_START_INFORMATION = "func_start_information";
     // function: 運賃アプリを起動する.
     public static final String FUNC_START_FARE = "func_start_fare";
+    // function: 運賃検索を開始する.
+    public static final String FUNC_SEARCH_FARE = "func_search_railwayfare";
     /**
      * Package名.
      */
@@ -64,8 +66,36 @@ public class ScenarioDefinitions {
     public static final String ACC_SELECT_FEATURE = ScenarioDefinitions.PACKAGE + ".select.feature";
     // accost名: 運行情報確認結果発話実行.
     public static final String ACC_TRAININFORMATION = ScenarioDefinitions.PACKAGE + ".train_information";
-    // accost名: 運賃検索結果発話実行.
+    // accost名: 運賃検索ヒアリング発話実行.
     public static final String ACC_RAILWAYFARE = ScenarioDefinitions.PACKAGE + ".railway_fare";
+    // accost名: 運賃検索ヒアリング結果発話実行.
+    public static final String ACC_SPEAK_RAILWAYFARE = ScenarioDefinitions.PACKAGE + ".speak_railway_fare";
+    // data key: 音声認識結果.
+    public static final String KEY_LVCSR_BASIC = "lvcsr_basic";
+    // data key: 発車駅路線発話.
+    public static final String KEY_FROM_RAILWAY = "data_from_railway";
+    // data key: 発車駅名発話.
+    public static final String KEY_FROM_STATION = "data_from_station";
+    // data key: 到着駅路線発話.
+    public static final String KEY_TO_RAILWAY = "data_to_railway";
+    // data key: 到着駅名発話.
+    public static final String KEY_TO_STATION = "data_to_station";
+    // memory_p: 出発路線名発話.
+    public static final String MEM_P_FROM_RAILWAY =
+            ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE +
+            ".data_from_railway";
+    // memory_p: 出発駅名発話.
+    public static final String MEM_P_FROM_STATION =
+            ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE +
+                    ".data_from_station";
+    // memory_p: 到着路線名発話.
+    public static final String MEM_P_TO_RAILWAY =
+            ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE +
+                    ".data_to_railway";
+    // memory_p: 到着駅名発話.
+    public static final String MEM_P_TO_STATION =
+            ScenarioDefinitions.TAG_MEMORY_PERMANENT + ScenarioDefinitions.PACKAGE +
+                    ".data_to_station";
     /**
      * static クラスとして使用する.
      */

@@ -2,17 +2,271 @@
 <hvml version="2.0">
     <head>
         <producer>com.sunnyhealth.kenjiro.nishimura.robohontokyometro</producer>
-        <description>運賃検索結果を発話</description>
+        <description>運賃検索結果をヒアリングする</description>
         <scene value="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.scene_fare" />
-        <version value="1.1" />
-        <accost priority="74" topic_id="execute"
+        <version value="1.5" />
+        <accost priority="74" topic_id="init"
             word="com.sunnyhealth.kenjiro.nishimura.robohontokyometro.railway_fare" />
     </head>
     <body>
-        <topic id="execute" listen="false">
+        <topic id="init" listen="false">
             <action index="1">
-                <speech>${memory_p:com.sunnyhealth.kenjiro.nishimura.robohontokyometro.message_railwayfare}</speech>
-                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal" />
+                <memory key="to_railway" type="temporary" value="null"/>
+                <memory key="to_station" type="temporary" value="null"/>
+                <memory key="from_railway" type="temporary" value="null"/>
+                <memory key="from_station" type="temporary" value="null"/>
+                <memory key="complete" type="temporary" value="false"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+        <topic id="switch" listen="false">
+            <rule>
+                <condition case_id="ask_fromrailway">${memory_t:from_railway} eq null</condition>
+                <condition case_id="ask_fromstation">${memory_t:from_station} eq null and ${memory_t:from_railway} neq null
+                and ${memory_t:to_railway} eq null and ${memory_t:to_station} eq null</condition>
+                <condition case_id="ask_tostation">${memory_t:to_station} eq null and ${memory_t:from_railway} neq null
+                and ${memory_t:from_station} neq null and ${memory_t:to_railway} eq null</condition>
+                <condition case_id="ask_torailway">${memory_t:to_railway} eq null and ${memory_t:from_railway} neq null and
+                ${memory_t:from_station} neq null and ${memory_t:to_station} neq null</condition>
+                <condition case_id="complete">${memory_t:complete} eq true</condition>
+            </rule>
+            <case id="ask_fromrailway">
+                <action index="1">
+                    <speech>まずは出発駅の路線名を教えてね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listen_fromrailway" type="default"/>
+            </case>
+            <case id="ask_fromstation">
+                <action index="1">
+                    <speech>出発駅を教えてね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listen_fromstation" type="default"/>
+            </case>
+            <case id="ask_tostation">
+                <action index="1">
+                    <speech>到着駅を教えてね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listen_tostation" type="default"/>
+            </case>
+            <case id="ask_torailway">
+                <action index="1">
+                    <speech>到着駅の路線を教えてね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#listen_torailway" type="default"/>
+            </case>
+            <case id="complete">
+                <action index="1">
+                    <speech>それじゃあ、検索を開始するね。</speech>
+                    <behavior id="assign" type="normal"/>
+                </action>
+                <next href="#transit_activity" type="default"/>
+            </case>
+        </topic>
+        <topic dict="Reply" id="listen_fromrailway" listen="true">
+            <a href="#fromrailway_ok">
+                <situation trigger="user-word">${Lvcsr:Basic} include [銀座,丸ノ内,丸の内,丸之内,日比谷,有楽町,半蔵門,千代田,東西,南北,副都心]</situation>
+            </a>
+            <a href="#fromrailway_error">
+                <situation trigger="user-word">ＶＯＩＣＥＰＦ＿ＥＲＲ in ${Lvcsr:Basic}</situation>
+            </a>
+            <a href="#fromrailway_other" type="default"/>
+            <next href="#fromrailway_other" type="default"/>
+        </topic>
+        <topic dict="Reply" id="listen_fromstation" listen="true">
+            <a href="#fromstation_ok">
+                <situation trigger="user-word">${Lvcsr:Basic} include [南阿佐ケ谷,門前仲町,豊洲,永田町,押上,築地,表参道,清澄白河,北千住,目黒,駒込,銀座一丁目,麻布十番,千駄木,東大前,新富町,方南町,中目黒,辰巳,王子神谷,代々木上原,氷川台,人形町,王子,西日暮里,半蔵門,浅草,三越前,本郷三丁目,麴町,水天宮前,稲荷町,茅場町,虎ノ門,西葛西,東池袋,葛西,有楽町,日本橋,神谷町,神楽坂,白金高輪,根津,行徳,東高円寺,上野,西ケ原,中野富士見町,国会議事堂前,北参道,志茂,新宿,町屋,護国寺,南砂町,新中野,雑司が谷,本駒込,西船橋,渋谷,赤坂見附,代々木公園,新高円寺,新木場,大手町,浦安,錦糸町,早稲田,末広町,恵比寿,南行徳,新宿御苑前,秋葉原,広尾,妙典,荻窪,高田馬場,月島,赤羽岩淵,四ツ谷,日比谷,中野新橋,小伝馬町,市ケ谷,平和台,南千住,中野,外苑前,地下鉄赤塚,入谷,東新宿,北綾瀬,西新宿,三ノ輪,後楽園,六本木一丁目,新大塚,江戸川橋,九段下,明治神宮前,乃木坂,霞ケ関,東京,溜池山王,御茶ノ水,新宿三丁目,八丁堀,西早稲田,茗荷谷,綾瀬,東陽町,神保町,赤坂,京橋,神田,白金台,飯田橋,田原町,六本木,上野広小路,木場,新橋,和光市,千川,桜田門,青山一丁目,地下鉄成増,東銀座,住吉,湯島,四谷三丁目,中野坂上,淡路町,銀座,竹橋,新御茶ノ水,原木中山,小竹向原,仲御徒町,要町,池袋,落合,二重橋前]</situation>
+            </a>
+            <a href="#fromstation_error">
+                <situation trigger="user-word">ＶＯＩＣＥＰＦ＿ＥＲＲ in ${Lvcsr:Basic}</situation>
+            </a>
+            <a href="#fromstation_other" type="default"/>
+            <next href="#fromstation_other" type="default"/>
+        </topic>
+        <topic dict="Reply" id="listen_tostation" listen="true">
+            <a href="#tostation_ok">
+                <situation trigger="user-word">${Lvcsr:Basic} include [南阿佐ケ谷,門前仲町,豊洲,永田町,押上,築地,表参道,清澄白河,北千住,目黒,駒込,銀座一丁目,麻布十番,千駄木,東大前,新富町,方南町,中目黒,辰巳,王子神谷,代々木上原,氷川台,人形町,王子,西日暮里,半蔵門,浅草,三越前,本郷三丁目,麴町,水天宮前,稲荷町,茅場町,虎ノ門,西葛西,東池袋,葛西,有楽町,日本橋,神谷町,神楽坂,白金高輪,根津,行徳,東高円寺,上野,西ケ原,中野富士見町,国会議事堂前,北参道,志茂,新宿,町屋,護国寺,南砂町,新中野,雑司が谷,本駒込,西船橋,渋谷,赤坂見附,代々木公園,新高円寺,新木場,大手町,浦安,錦糸町,早稲田,末広町,恵比寿,南行徳,新宿御苑前,秋葉原,広尾,妙典,荻窪,高田馬場,月島,赤羽岩淵,四ツ谷,日比谷,中野新橋,小伝馬町,市ケ谷,平和台,南千住,中野,外苑前,地下鉄赤塚,入谷,東新宿,北綾瀬,西新宿,三ノ輪,後楽園,六本木一丁目,新大塚,江戸川橋,九段下,明治神宮前,乃木坂,霞ケ関,東京,溜池山王,御茶ノ水,新宿三丁目,八丁堀,西早稲田,茗荷谷,綾瀬,東陽町,神保町,赤坂,京橋,神田,白金台,飯田橋,田原町,六本木,上野広小路,木場,新橋,和光市,千川,桜田門,青山一丁目,地下鉄成増,東銀座,住吉,湯島,四谷三丁目,中野坂上,淡路町,銀座,竹橋,新御茶ノ水,原木中山,小竹向原,仲御徒町,要町,池袋,落合,二重橋前]</situation>
+            </a>
+            <a href="#tostation_error">
+                <situation trigger="user-word">ＶＯＩＣＥＰＦ＿ＥＲＲ in ${Lvcsr:Basic}</situation>
+            </a>
+            <a href="#tostation_other" type="default"/>
+            <next href="#tostation_other" type="default"/>
+        </topic>
+        <topic dict="Reply" id="listen_torailway" listen="true">
+            <a href="#torailway_ok">
+                <situation trigger="user-word">${Lvcsr:Basic} include [銀座,丸ノ内,丸の内,丸之内,日比谷,有楽町,半蔵門,千代田,東西,南北,副都心]</situation>
+            </a>
+            <a href="#torailway_error">
+                <situation trigger="user-word">ＶＯＩＣＥＰＦ＿ＥＲＲ in ${Lvcsr:Basic}</situation>
+            </a>
+            <a href="#torailway_other" type="default"/>
+            <next href="#torailway_other" type="default"/>
+        </topic>
+        <topic id="fromrailway_ok" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
+                <memory key="from_railway" type="temporary" value="${Lvcsr:Basic}"/>
+                <memory key="data_from_railway" type="permanent" value="${Lvcsr:Basic}"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+        <topic id="fromrailway_error" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、うまく聞き取れなかったよ。もう一回教えて。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_fromrailway" type="default"/>
+        </topic>
+        <topic id="fromrailway_other" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、よくわからなかったよ。もう一度聞くね。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_fromrailway" type="default"/>
+        </topic>
+        <topic id="fromstation_ok" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
+                <memory key="from_station" type="temporary" value="${Lvcsr:Basic}"/>
+                <memory key="data_from_station" type="permanent" value="${Lvcsr:Basic}"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+        <topic id="fromstation_error" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、うまく聞き取れなかったよ。もう一回教えて。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_fromstation" type="default"/>
+        </topic>
+        <topic id="fromstation_other" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、よくわからなかったよ。もう一度聞くね。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_fromstation" type="default"/>
+        </topic>
+        <topic id="tostation_ok" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
+                <memory key="to_station" type="temporary" value="${Lvcsr:Basic}"/>
+                <memory key="data_to_station" type="permanent" value="${Lvcsr:Basic}"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+        <topic id="tostation_error" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、うまく聞き取れなかったよ。もう一回教えて。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_tostation" type="default"/>
+        </topic>
+        <topic id="tostation_other" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、よくわからなかったよ。もう一度聞くね。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_tostation" type="default"/>
+        </topic>
+        <topic id="torailway_ok" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>${resolver:speech_ok(${resolver:ok_id})}</speech>
+                <behavior id="${resolver:motion_ok(${resolver:ok_id})}" type="normal"/>
+                <memory key="to_railway" type="temporary" value="${Lvcsr:Basic}"/>
+                <memory key="data_to_railway" type="permanent" value="${Lvcsr:Basic}"/>
+                <memory key="complete" type="temporary" value="true"/>
+            </action>
+            <next href="#switch" type="default"/>
+        </topic>
+        <topic id="torailway_error" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、うまく聞き取れなかったよ。もう一回教えて。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_torailway" type="default"/>
+        </topic>
+        <topic id="torailway_other" listen="false">
+            <action index="1">
+                <control function="func_recog_talk" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="lvcsr_basic" value="${Lvcsr:Basic}"/>
+                </control>
+            </action>
+            <action index="2">
+                <speech>ごめんね、よくわからなかったよ。もう一度聞くね。</speech>
+                <behavior id="assign" type="normal"/>
+            </action>
+            <next href="#listen_torailway" type="default"/>
+        </topic>
+        <topic id="transit_activity" listen="false">
+            <action index="1">
+                <control function="func_search_railwayfare" target="com.sunnyhealth.kenjiro.nishimura.robohontokyometro">
+                    <data key="data_from_railway" value="${memory_p:data_from_railway}"/>
+                    <data key="data_from_station" value="${memory_p:data_from_station}"/>
+                    <data key="data_to_railway" value="${memory_p:data_to_railway}"/>
+                    <data key="data_to_station" value="${memory_p:data_to_station}"/>
+                </control>
             </action>
         </topic>
     </body>

@@ -24,8 +24,9 @@ import jp.co.sharp.android.voiceui.VoiceUIManager;
 public class AsyncTokyoMetro extends AsyncTask<String, Void, String> {
 
     // メンバ変数
-    private static String ENDPOINT_RAILWAYFARE = "https://api.tokyometroapp.jp/api/v2/datapoints?rdf:type=odpt:RailwayFare";
-    private static String ENDPOINT_TRAININFORMATION = "https://api.tokyometroapp.jp/api/v2/datapoints?rdf:type=odpt:TrainInformation";
+    private static String ENDPOINT = "https://api.tokyometroapp.jp/api/v2/datapoints?";
+    private static String ENDPOINT_RAILWAYFARE = "rdf%3Atype=odpt%3ARailwayFare";
+    private static String ENDPOINT_TRAININFORMATION = "rdf%3Atype=odpt%3ATrainInformation";
     private String mUrl;
     private Activity mActivity;
     private VoiceUIManager mVoiceUIManager = null;
@@ -73,14 +74,15 @@ public class AsyncTokyoMetro extends AsyncTask<String, Void, String> {
         // URLを生成
         switch (targetFeature) {
             case "railwayFare":
-                mUrl = ENDPOINT_RAILWAYFARE + params[1] + "&acl:consumerKey=" + mAccessToken;
+                mUrl = ENDPOINT_RAILWAYFARE + params[1] + "&acl%3AconsumerKey=" + mAccessToken;
                 break;
             case "trainInformation":
-                mUrl = ENDPOINT_TRAININFORMATION + "&acl:consumerKey=" + mAccessToken;
+                mUrl = ENDPOINT_TRAININFORMATION + "&acl%3AconsumerKey=" + mAccessToken;
                 break;
             default:
                 break;
         }
+        mUrl = ENDPOINT + mUrl;
         Log.d("ANDROID", mUrl);
 
         // APIからデータを取得
@@ -106,6 +108,7 @@ public class AsyncTokyoMetro extends AsyncTask<String, Void, String> {
                 }
             }
         }
+        Log.d("AsyncLog - APIResult: ", result);
         return result;
     }
 
@@ -117,7 +120,7 @@ public class AsyncTokyoMetro extends AsyncTask<String, Void, String> {
         try {
             rootJSON = new JSONArray(result);
         } catch(JSONException ex) {
-            Log.d("ANDROID", "JSONException");
+            Log.d("JSONexception", "文字列をJSONArrayに変換時にエラーが発生.");
         }
 
         // 機能に応じて処理をスイッチ
@@ -139,6 +142,7 @@ public class AsyncTokyoMetro extends AsyncTask<String, Void, String> {
         // 始点駅 / 終点駅 / 運賃の取得
         Map<String, String> data = new HashMap<String, String>();
         try {
+            Log.d("ANDROID", String.valueOf(rootJSON.length()));
             JSONObject rootJSONObject = rootJSON.getJSONObject(0);
             data.put("fromStation", rootJSONObject.getString("odpt:fromStation"));
             data.put("toStation", rootJSONObject.getString("odpt:toStation"));
@@ -147,6 +151,7 @@ public class AsyncTokyoMetro extends AsyncTask<String, Void, String> {
             data.put("icCardFare", rootJSONObject.getString("odpt:icCardFare"));
             data.put("childIcCardFare", rootJSONObject.getString("odpt:childIcCardFare"));
         } catch(JSONException ex) {
+            Log.d("JSONException", "JSONObjectの変換 & Mapにデータを格納中に例外が発生.");
         }
 
         callbacktask.CallBack(data);

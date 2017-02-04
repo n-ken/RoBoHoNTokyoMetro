@@ -170,6 +170,11 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
             case ScenarioDefinitions.FUNC_END_APP:
                 finish();
                 break;
+            case ScenarioDefinitions.FUNC_RECOG_TALK:
+                String lvcsr_basic = VoiceUIVariableUtil.getVariableData(variables,
+                        ScenarioDefinitions.KEY_LVCSR_BASIC);
+                Log.d("RecognizedTalk: ", lvcsr_basic);
+                break;
             case ScenarioDefinitions.FUNC_SELECT_FEATURE:
                 // 機能選択シナリオを軌道する
                 helper = new VoiceUIVariableUtil.VoiceUIVariableListHelper().addAccost(ScenarioDefinitions.ACC_SELECT_FEATURE);
@@ -177,7 +182,6 @@ public class MainActivity extends Activity implements MainActivityVoiceUIListene
                 break;
             case ScenarioDefinitions.FUNC_START_INFORMATION:
                 // 運行情報確認画面に遷移する
-                Log.d("ANDROID", "Now, Start ActivityTransition.");
                 intent = new Intent(MainActivity.this, ShowTrainInformationActivity.class);
                 startActivity(intent);
                 break;

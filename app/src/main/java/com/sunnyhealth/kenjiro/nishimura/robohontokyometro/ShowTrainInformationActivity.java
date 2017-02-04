@@ -130,15 +130,18 @@ public class ShowTrainInformationActivity extends Activity implements MainActivi
             case ScenarioDefinitions.FUNC_END_APP:
                 finish();
                 break;
+            case ScenarioDefinitions.FUNC_RECOG_TALK:
+                String lvcsr_basic = VoiceUIVariableUtil.getVariableData(variables,
+                        ScenarioDefinitions.KEY_LVCSR_BASIC);
+                Log.d("RecognizedTalk: ", lvcsr_basic);
+                break;
             case ScenarioDefinitions.FUNC_START_FARE:
                 // 運賃検索画面に遷移する
-                Log.d("ANDROID", "Now, Start ActivityTransition.");
                 intent = new Intent(ShowTrainInformationActivity.this, ShowRailwayFareActivity.class);
                 startActivity(intent);
                 break;
             case ScenarioDefinitions.FUNC_START_INFORMATION:
                 // 運行情報確認画面に遷移する
-                Log.d("ANDROID", "Now, Start ActivityTransition.");
                 intent = new Intent(ShowTrainInformationActivity.this, ShowTrainInformationActivity.class);
                 startActivity(intent);
                 break;
